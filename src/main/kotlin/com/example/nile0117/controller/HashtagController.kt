@@ -59,12 +59,21 @@ class HashtagController {
 
     // read
     @GetMapping("/hashtags")
-    fun getHashtags(
+    fun getHashtags(): ResponseEntity<*> {
+        return ResponseEntity.ok(
+            NileResponse(
+                result = hashtagService.getHashtags()
+            )
+        )
+    }
+
+    @GetMapping("/hashtags/page")
+    fun getHashtagsPage(
         @PageableDefault(size = 10) pageable: Pageable
     ): ResponseEntity<*> {
         return ResponseEntity.ok(
             NileResponse(
-                result = hashtagService.getHashtags()
+                result = hashtagService.getHashtagsPage(pageable)
             )
         )
     }
