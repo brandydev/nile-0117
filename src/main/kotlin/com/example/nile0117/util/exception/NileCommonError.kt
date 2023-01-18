@@ -1,4 +1,4 @@
-package com.example.nile0117.util
+package com.example.nile0117.util.exception
 
 enum class NileCommonError(
     private val code: Int,
@@ -11,7 +11,8 @@ enum class NileCommonError(
     ACCESS_TOKEN_EXPIRED(9401, "Access token expired.", 401),
     REFRESH_TOKEN_EXPIRED(9402, "Refresh token expired.", 401),
 
-    INVALID_SLUG(8400, "Invalid slug", 400);
+    INVALID_SLUG(8400, "Invalid slug", 400),
+    INVALID_TEXT(8401, "Invalid text for hashtag", 400);
 
     override fun getErrorCode() = code
     override fun getErrorMessage() = message

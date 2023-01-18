@@ -1,4 +1,4 @@
-package com.example.nile0117.util
+package com.example.nile0117.util.exception
 
 interface NileError {
     fun getErrorCode(): Int

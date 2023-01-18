@@ -5,9 +5,9 @@ import com.example.nile0117.domain.enums.Status
 import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
 import com.example.nile0117.service.ArticleService
-import com.example.nile0117.util.NileCommonError
-import com.example.nile0117.util.NileException
-import com.example.nile0117.util.NileResponse
+import com.example.nile0117.util.exception.NileCommonError
+import com.example.nile0117.util.exception.NileException
+import com.example.nile0117.util.response.NileResponse
 import mu.KLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
-import java.time.Instant
 import java.time.LocalDateTime
 
 @RestController
@@ -58,7 +57,7 @@ class ArticleController {
         }
 
         val nileArticle = Article(
-            payload.slug,
+            payload.slug
         )
         nileArticle.status = payload.status ?: Status.HIDDEN
         nileArticle.createdAt = LocalDateTime.now()
@@ -66,7 +65,7 @@ class ArticleController {
 
         articleService.addArticle(nileArticle)
 
-        return ResponseEntity.ok().build<Any>();
+        return ResponseEntity.ok().build<Any>()
     }
 
     // read
@@ -111,10 +110,8 @@ class ArticleController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val nileArticle = slug?.let { articleService.getArticleBySlug(slug!!) }
-            ?: throw NileException(NileCommonError.NOT_FOUND)
-
-        articleRepository.delete(nileArticle)
+        val nileArticle: Article = articleService.getArticleBySlug(slug)
+        articleService.removeArticleBySlug(nileArticle.slug)
 
         return ResponseEntity.ok(
             NileResponse(

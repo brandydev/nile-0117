@@ -1,4 +1,6 @@
-package com.example.nile0117.util
+package com.example.nile0117.util.exception
+
+import com.example.nile0117.util.response.NileResponse
 
 class NileException(nileError: NileError): RuntimeException() {
     private val errorCode: Int = nileError.getErrorCode()

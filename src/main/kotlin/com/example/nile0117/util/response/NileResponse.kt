@@ -1,4 +1,4 @@
-package com.example.nile0117.util
+package com.example.nile0117.util.response
 
 data class NileResponse(
     val errorCode: Int? = 0,

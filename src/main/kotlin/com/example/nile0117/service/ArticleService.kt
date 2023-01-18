@@ -3,11 +3,10 @@ package com.example.nile0117.service
 import com.example.nile0117.domain.entity.Article
 import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
-import com.example.nile0117.util.NileCommonError
-import com.example.nile0117.util.NileException
+import com.example.nile0117.util.exception.NileCommonError
+import com.example.nile0117.util.exception.NileException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 @Service
 class ArticleService {
@@ -31,6 +30,10 @@ class ArticleService {
     fun editArticle(article: Article) = articleRepository.save(article)
 
     // delete
-    fun removeArticle(id: UUID) = articleRepository.deleteById(id)
+    fun removeArticleBySlug(slug: String) {
+        val nileArticle = slug?.let { articleRepository.findBySlug(slug) }
+            ?: throw NileException(NileCommonError.NOT_FOUND)
+        articleRepository.delete(nileArticle)
+    }
 
 }
