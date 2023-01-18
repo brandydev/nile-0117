@@ -2,7 +2,6 @@ package com.example.nile0117.controller
 
 import com.example.nile0117.domain.entity.Article
 import com.example.nile0117.domain.enums.Status
-import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
 import com.example.nile0117.service.ArticleService
 import com.example.nile0117.util.exception.NileCommonError
@@ -30,9 +29,6 @@ class ArticleController {
 
     @Autowired
     lateinit var articleRepository: ArticleRepository
-
-    @Autowired
-    lateinit var articleContentRepository: ArticleContentRepository
 
     @Autowired
     lateinit var restTemplate: RestTemplate

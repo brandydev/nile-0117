@@ -8,6 +8,8 @@ import com.example.nile0117.util.exception.NileException
 import com.example.nile0117.util.response.NileResponse
 import mu.KLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -56,6 +58,17 @@ class HashtagController {
     }
 
     // read
+    @GetMapping("/hashtags")
+    fun getHashtags(
+        @PageableDefault(size = 10) pageable: Pageable
+    ): ResponseEntity<*> {
+        return ResponseEntity.ok(
+            NileResponse(
+                result = hashtagService.getHashtags()
+            )
+        )
+    }
+
     @GetMapping("/hashtag")
     fun getHashtag(
         @RequestParam("text", required = false, defaultValue = "") text: String?

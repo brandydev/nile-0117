@@ -5,7 +5,6 @@ import com.example.nile0117.domain.enums.Language
 import jakarta.persistence.*
 import java.util.*
 
-@Entity
 data class ArticleContent(
     var articleId: String,
     @Enumerated(EnumType.STRING)
