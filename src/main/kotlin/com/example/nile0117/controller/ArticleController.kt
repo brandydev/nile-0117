@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -95,7 +96,28 @@ class ArticleController {
     }
 
     // update
+    @PutMapping("/article")
+    fun updateArticle(
+        @RequestParam("slug", required = false, defaultValue = "") slug: String?,
+        @RequestBody request: Article
+    ): ResponseEntity<*> {
+        if (slug.isNullOrBlank()) {
+            throw NileException(NileCommonError.INVALID_PARAMETER)
+        }
 
+        val targetArticle = slug?.let { articleService.getArticleBySlug(slug) }
+            ?: throw NileException(NileCommonError.NOT_FOUND)
+
+        targetArticle.slug = request.slug
+        targetArticle.status = request.status
+        targetArticle.updatedAt = LocalDateTime.now()
+        targetArticle.openedAt = request.openedAt
+        targetArticle.creator = request.creator
+
+        articleService.addArticle(targetArticle)
+
+        return ResponseEntity.ok().build<Any>()
+    }
 
     // delete
     @DeleteMapping("/article")

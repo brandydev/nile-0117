@@ -86,7 +86,7 @@ class HashtagController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val hashtag = text?.let { hashtagService.getArticleByText(text) }
+        val hashtag = text?.let { hashtagService.getHashtagByText(text) }
             ?: throw NileException(NileCommonError.NOT_FOUND)
 
         return ResponseEntity.ok(
@@ -105,7 +105,7 @@ class HashtagController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val nileHashtag: Hashtag = hashtagService.getArticleByText(text)
+        val nileHashtag: Hashtag = hashtagService.getHashtagByText(text)
         hashtagService.removeHashtagByText(nileHashtag.text)
 
         return ResponseEntity.ok(

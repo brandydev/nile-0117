@@ -20,7 +20,7 @@ class HashtagService {
     // read
     fun getHashtags() = hashtagRepository.findAllByIdIsNotNull()
     fun getHashtagsPage(pageable: Pageable) = hashtagRepository.findAllByIdIsNotNull(pageable)
-    fun getArticleByText(text: String): Hashtag {
+    fun getHashtagByText(text: String): Hashtag {
         return hashtagRepository.findByText(text) ?: throw NileException(NileCommonError.NOT_FOUND)
     }
 
