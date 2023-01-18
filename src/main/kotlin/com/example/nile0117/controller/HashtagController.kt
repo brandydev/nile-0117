@@ -6,7 +6,6 @@ import com.example.nile0117.service.HashtagService
 import com.example.nile0117.util.exception.NileCommonError
 import com.example.nile0117.util.exception.NileException
 import com.example.nile0117.util.response.NileResponse
-import mu.KLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.client.RestTemplate
 
 @RestController
 class HashtagController {
@@ -27,11 +25,6 @@ class HashtagController {
 
     @Autowired
     lateinit var hashtagRepository: HashtagRepository
-
-    @Autowired
-    lateinit var restTemplate: RestTemplate
-
-    companion object: KLogging()
 
     // create
     @PostMapping("/hashtag")

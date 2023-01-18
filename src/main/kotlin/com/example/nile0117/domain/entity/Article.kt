@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
-import java.util.UUID
+import kotlin.jvm.Transient
 
 @Serializable
 @Entity
@@ -24,16 +24,6 @@ data class Article(
     var openedAt: LocalDateTime? = null
     var creator: String? = null // article의 main nft 제작자
 
-    // var createdBy: Columnist? = null
-    // var updatedBy: Columnist? = null
-
-    /*
-    @OneToMany
-    @JoinTable(
-        name ="article_content",
-        joinColumns = [JoinColumn(name = "article_id")],
-        inverseJoinColumns = [JoinColumn(name = "content_id")]
-    )
+    @Transient
     var contents = mutableListOf<ArticleContent>()
-     */
 }

@@ -5,12 +5,13 @@ import com.example.nile0117.domain.enums.Language
 import jakarta.persistence.*
 import java.util.*
 
+@Entity
 data class ArticleContent(
-    var articleId: String,
     @Enumerated(EnumType.STRING)
     var language: Language? = null,
     var title: String? = null,
     var description: String? = null,
-    var content: String? = null
+    var content: String? = null,
 ): BaseEntity() {
+    var articleId: UUID? = null
 }
