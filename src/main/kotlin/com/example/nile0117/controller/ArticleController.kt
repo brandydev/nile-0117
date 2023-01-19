@@ -1,13 +1,13 @@
 package com.example.nile0117.controller
 
 import com.example.nile0117.domain.entity.Article
-import com.example.nile0117.domain.enums.Status
+import com.example.nile0117.domain.entity.ArticleContent
+import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
 import com.example.nile0117.service.ArticleService
 import com.example.nile0117.util.exception.NileCommonError
 import com.example.nile0117.util.exception.NileException
 import com.example.nile0117.util.response.NileResponse
-import mu.KLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
 
 @RestController
@@ -32,47 +31,52 @@ class ArticleController {
     lateinit var articleRepository: ArticleRepository
 
     @Autowired
-    lateinit var restTemplate: RestTemplate
-
-    companion object: KLogging()
+    lateinit var articleContentRepository: ArticleContentRepository
 
     // create
     @PostMapping("/article")
     fun addArticle(
         @RequestBody payload: Article
     ): ResponseEntity<*> {
-        val isSlugExist: Boolean = articleRepository.findBySlug(payload.slug) != null
-
-        // 이미 기존에 존재하는 slug인지
-        if (isSlugExist) {
-            throw NileException(NileCommonError.INVALID_SLUG)
-        }
-
-        // slug 입력 있는지
+        // slug 입력 여부 확인
         if (payload.slug.isNullOrBlank()) {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val nileArticle = Article(
-            payload.slug
+        val targetArticle = Article(
+            payload.slug,
+            payload.status,
+            payload.openedAt,
+            payload.creator ?: "unknown"
         )
-        nileArticle.status = payload.status ?: Status.HIDDEN
-        nileArticle.createdAt = LocalDateTime.now()
-        nileArticle.creator = payload.creator ?: "none"
+        targetArticle.createdAt = LocalDateTime.now()
+        articleService.addArticle(targetArticle)
 
-        articleService.addArticle(nileArticle)
+        payload.contents.forEach {
+            articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
+        }
 
-        return ResponseEntity.ok().build<Any>()
+        // return ResponseEntity.ok().build<Any>()
+        return ResponseEntity.ok(
+            NileResponse(
+                result = targetArticle
+            )
+        )
     }
 
     // read
     @GetMapping("/articles")
-    fun getArticles(
-        @PageableDefault(size = 10) pageable: Pageable
-    ): ResponseEntity<*> {
+    fun getArticles(): ResponseEntity<*> {
+        val targetArticles =  articleService.getArticles()
+
+        targetArticles.forEach {
+            it.contents = mutableListOf()
+            it.contents.addAll(articleContentRepository.findAllByArticleId(it.id))
+        }
+
         return ResponseEntity.ok(
             NileResponse(
-                result = articleService.getArticles()
+                result = targetArticles
             )
         )
     }
@@ -85,12 +89,15 @@ class ArticleController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val article = slug?.let { articleService.getArticleBySlug(slug!!) }
-            ?: throw NileException(NileCommonError.NOT_FOUND)
+        val targetArticle = articleService.getArticleBySlug(slug)
+        val targetArticleContents = articleContentRepository.findAllByArticleId(targetArticle.id)
+
+        targetArticle.contents = mutableListOf()
+        targetArticle.contents.addAll(targetArticleContents)
 
         return ResponseEntity.ok(
             NileResponse(
-                result = article
+                result = targetArticle
             )
         )
     }
@@ -105,8 +112,7 @@ class ArticleController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val targetArticle = slug?.let { articleService.getArticleBySlug(slug) }
-            ?: throw NileException(NileCommonError.NOT_FOUND)
+        val targetArticle = articleService.getArticleBySlug(slug)
 
         targetArticle.slug = request.slug
         targetArticle.status = request.status
@@ -116,7 +122,21 @@ class ArticleController {
 
         articleService.addArticle(targetArticle)
 
-        return ResponseEntity.ok().build<Any>()
+        // content update
+        val prevContents = articleContentRepository.findAllByArticleId(targetArticle.id)
+        prevContents.forEach {
+            articleContentRepository.delete(it)
+        }
+        targetArticle.contents.forEach {
+            articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
+        }
+
+        // return ResponseEntity.ok().build<Any>()
+        return ResponseEntity.ok(
+            NileResponse(
+                result = targetArticle
+            )
+        )
     }
 
     // delete
@@ -128,12 +148,18 @@ class ArticleController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val nileArticle: Article = articleService.getArticleBySlug(slug)
-        articleService.removeArticleBySlug(nileArticle.slug)
+        val targetArticle: Article = articleService.getArticleBySlug(slug)
+        articleService.removeArticleBySlug(targetArticle.slug)
 
+        val targetArticleContents = articleContentRepository.findAllByArticleId(targetArticle.id)
+        targetArticleContents.forEach {
+            articleContentRepository.delete(it)
+        }
+
+        // return ResponseEntity.ok().build<Any>()
         return ResponseEntity.ok(
             NileResponse(
-                result = nileArticle
+                result = targetArticle
             )
         )
     }

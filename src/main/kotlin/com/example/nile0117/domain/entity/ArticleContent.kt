@@ -8,10 +8,10 @@ import java.util.*
 @Entity
 data class ArticleContent(
     @Enumerated(EnumType.STRING)
-    var language: Language? = null,
-    var title: String? = null,
-    var description: String? = null,
-    var content: String? = null,
+    var language: Language?,
+    var title: String?,
+    var description: String?,
+    var content: String?,
+    var articleId: UUID?
 ): BaseEntity() {
-    var articleId: UUID? = null
 }
