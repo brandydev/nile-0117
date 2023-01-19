@@ -14,7 +14,7 @@ data class Article( // paging 처리
     var status: Status = Status.HIDDEN,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     var openedAt: LocalDateTime?,
-    var creator: String? // article의 main nft 제작자
+    var nftCreator: String? // article의 main nft 제작자
 ): BaseEntity() {
     @Transient
     var contents = mutableListOf<ArticleContent>()

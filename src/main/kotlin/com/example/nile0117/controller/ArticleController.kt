@@ -46,7 +46,7 @@ class ArticleController {
             payload.slug,
             payload.status,
             payload.openedAt,
-            payload.creator ?: "unknown"
+            payload.nftCreator ?: "unknown"
         )
         articleService.addArticle(targetArticle)
 
@@ -110,7 +110,7 @@ class ArticleController {
         targetArticle.slug = request.slug
         targetArticle.status = request.status
         targetArticle.openedAt = request.openedAt // openedAt 지정하지 않으면, 현재 시점으로 기본 설정
-        targetArticle.creator = request.creator
+        targetArticle.nftCreator = request.nftCreator
 
         articleService.addArticle(targetArticle)
 
