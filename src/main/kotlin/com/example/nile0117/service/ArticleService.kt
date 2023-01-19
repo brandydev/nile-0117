@@ -44,11 +44,25 @@ class ArticleService {
             return null
         }
     }
-    
+
     // read
-    fun getArticles() = articleRepository.findAllByIdIsNotNullOrderByOpenedAtDesc()
-    fun getArticleBySlug(slug: String): Article {
-        return articleRepository.findBySlug(slug) ?: throw NileException(NileCommonError.NOT_FOUND)
+    fun getArticles(): List<Article> {
+        val targetArticles = articleRepository.findAllByIdIsNotNull()
+        targetArticles.forEach {
+            it.contents = mutableListOf()
+            it.contents.addAll(articleContentRepository.findAllByArticleId(it.id))
+        }
+
+        return targetArticles
+    }
+
+    fun getArticleBySlug(slug: String): Article? {
+        val isExist = articleRepository.existsBySlug(slug)
+        return if (!isExist) {
+            null
+        } else {
+            articleRepository.findBySlug(slug)
+        }
     }
 
     // update

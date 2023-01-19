@@ -37,13 +37,12 @@ class ArticleController {
     fun addArticle(
         @RequestBody payload: Article
     ): ResponseEntity<*> {
-
         if (payload.slug.isBlank()) {
             return ResponseEntity.ok(
                 NileResponse(
                     errorCode = NileCommonError.INVALID_PARAMETER.getErrorCode(),
                     status = NileCommonError.INVALID_PARAMETER.getHttpStatus(),
-                    message = "article 생성을 위해서는 slug 입력이 필요합니다.",
+                    message = "article 생성을 위해서는 slug 입력이 필요합니다."
                 )
             )
         }
@@ -66,16 +65,12 @@ class ArticleController {
     // read
     @GetMapping("/articles")
     fun getArticles(): ResponseEntity<*> {
-        val targetArticles =  articleService.getArticles()
-
-        targetArticles.forEach {
-            it.contents = mutableListOf()
-            it.contents.addAll(articleContentRepository.findAllByArticleId(it.id))
-        }
+        val selectedArticles =  articleService.getArticles()
 
         return ResponseEntity.ok(
             NileResponse(
-                result = targetArticles
+                message = "전체 article 조회에 성공했습니다.",
+                result = selectedArticles
             )
         )
     }
@@ -85,22 +80,31 @@ class ArticleController {
         @RequestParam("slug", required = false, defaultValue = "") slug: String?
     ): ResponseEntity<*> {
         if (slug.isNullOrBlank()) {
-            throw NileException(NileCommonError.INVALID_PARAMETER)
+            return ResponseEntity.ok(
+                NileResponse(
+                    errorCode = NileCommonError.INVALID_PARAMETER.getErrorCode(),
+                    status = NileCommonError.INVALID_PARAMETER.getHttpStatus(),
+                    message = "article 조회를 위해서는 slug 입력이 필요합니다."
+                )
+            )
         }
 
-        val targetArticle = articleService.getArticleBySlug(slug)
-        val targetArticleContents = articleContentRepository.findAllByArticleId(targetArticle.id)
-
-        targetArticle.contents = mutableListOf()
-        targetArticle.contents.addAll(targetArticleContents)
-
-        return ResponseEntity.ok(
+        val selectedArticle: Article? = articleService.getArticleBySlug(slug)
+        selectedArticle?.let { return ResponseEntity.ok(
             NileResponse(
-                result = targetArticle
+                message = "article이 성공적으로 조회되었습니다.",
+                result = selectedArticle
+            )
+        ) } ?: return ResponseEntity.ok(
+            NileResponse(
+                errorCode = NileCommonError.INVALID_SLUG.getErrorCode(),
+                status = NileCommonError.INVALID_SLUG.getHttpStatus(),
+                message = "존재하지 않는 slug입니다."
             )
         )
     }
 
+    /*
     // update
     @PutMapping("/article")
     fun updateArticle(
@@ -154,4 +158,6 @@ class ArticleController {
 
         return ResponseEntity.ok().build<Any>()
     }
+
+     */
 }
