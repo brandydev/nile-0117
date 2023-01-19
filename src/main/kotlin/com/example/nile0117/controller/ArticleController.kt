@@ -99,7 +99,7 @@ class ArticleController {
             NileResponse(
                 errorCode = NileCommonError.INVALID_SLUG.getErrorCode(),
                 status = NileCommonError.INVALID_SLUG.getHttpStatus(),
-                message = "존재하지 않는 slug입니다."
+                message = "존재하지 않는 article입니다."
             )
         )
     }
@@ -137,27 +137,35 @@ class ArticleController {
 
         return ResponseEntity.ok().build<Any>()
     }
+     */
 
     // delete
-    // 조회를 제외하고는 권한 처리
     @DeleteMapping("/article")
     fun removeArticle(
         @RequestParam("slug", required = false, defaultValue = "") slug: String?
     ): ResponseEntity<*> {
         if (slug.isNullOrBlank()) {
-            throw NileException(NileCommonError.INVALID_PARAMETER)
+            return ResponseEntity.ok(
+                NileResponse(
+                    errorCode = NileCommonError.NOT_FOUND.getErrorCode(),
+                    status = NileCommonError.NOT_FOUND.getHttpStatus(),
+                    message = "article 삭제를 위해서는 slug 입력이 필요합니다."
+                )
+            )
         }
 
-        val targetArticle: Article = articleService.getArticleBySlug(slug)
-        articleService.removeArticleBySlug(targetArticle.slug)
-
-        val targetArticleContents = articleContentRepository.findAllByArticleId(targetArticle.id)
-        targetArticleContents.forEach {
-            articleContentRepository.delete(it)
-        }
-
-        return ResponseEntity.ok().build<Any>()
+        val deletedArticle: Article? = articleService.removeArticleBySlug(slug)
+        deletedArticle?.let { return ResponseEntity.ok(
+            NileResponse(
+                message = "article이 성공적으로 삭제되었습니다.",
+                result = deletedArticle
+            )
+        ) } ?: return ResponseEntity.ok(
+            NileResponse(
+                errorCode = NileCommonError.INVALID_SLUG.getErrorCode(),
+                status = NileCommonError.INVALID_SLUG.getHttpStatus(),
+                message = "존재하지 않는 slug입니다."
+            )
+        )
     }
-
-     */
 }

@@ -68,10 +68,18 @@ class ArticleService {
     // update
 
     // delete
-    fun removeArticleBySlug(slug: String) {
-        val nileArticle = articleRepository.findBySlug(slug)
-        nileArticle?.let { articleRepository.delete(it) }
-            ?: throw NileException(NileCommonError.NOT_FOUND)
+    fun removeArticleBySlug(slug: String): Article? {
+        val isExist = articleRepository.existsBySlug(slug)
+        return if (!isExist) {
+            null
+        } else {
+            val targetArticle = articleRepository.findBySlug(slug)
+            articleRepository.deleteById(targetArticle!!.id!!)
+            val targetArticleContents = articleContentRepository.findAllByArticleId(targetArticle.id)
+            targetArticleContents.forEach {
+                articleContentRepository.delete(it)
+            }
+            targetArticle
+        }
     }
-
 }

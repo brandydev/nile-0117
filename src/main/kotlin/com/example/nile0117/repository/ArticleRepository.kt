@@ -16,4 +16,6 @@ interface ArticleRepository: JpaRepository<Article, UUID> {
     fun findAllByIdIsNotNullOrderByOpenedAtDesc(): List<Article>
     fun findAllByIdIsNotNullOrderByOpenedAtDesc(pageable: Pageable): Page<Article>
     fun findBySlug(slug: String): Article?
+
+    fun deleteBySlug(slug: String)
 }
