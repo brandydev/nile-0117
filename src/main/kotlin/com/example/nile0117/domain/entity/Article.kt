@@ -11,7 +11,7 @@ import kotlin.jvm.Transient
 data class Article( // paging 처리
     var slug: String, // unique index 처리 >> db 차원에서 처리 가능
     @Enumerated(EnumType.STRING)
-    var status: Status = Status.HIDDEN,
+    var status: Status?,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     var openedAt: LocalDateTime?,
     var nftCreator: String? // article의 main nft 제작자

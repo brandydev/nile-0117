@@ -16,4 +16,5 @@ enum class NileCommonError(
 
     override fun getErrorCode() = code
     override fun getErrorMessage() = message
+    override fun getHttpStatus() = statusCode
 }

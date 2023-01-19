@@ -2,6 +2,7 @@ package com.example.nile0117.controller
 
 import com.example.nile0117.domain.entity.Article
 import com.example.nile0117.domain.entity.ArticleContent
+import com.example.nile0117.domain.enums.Status
 import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
 import com.example.nile0117.service.ArticleService
@@ -36,25 +37,30 @@ class ArticleController {
     fun addArticle(
         @RequestBody payload: Article
     ): ResponseEntity<*> {
-        // slug 입력 여부 확인
-        // 유효성 체크
+
         if (payload.slug.isBlank()) {
-            throw NileException(NileCommonError.INVALID_PARAMETER)
+            return ResponseEntity.ok(
+                NileResponse(
+                    errorCode = NileCommonError.INVALID_PARAMETER.getErrorCode(),
+                    status = NileCommonError.INVALID_PARAMETER.getHttpStatus(),
+                    message = "article 생성을 위해서는 slug 입력이 필요합니다.",
+                )
+            )
         }
 
-        val targetArticle = Article(
-            payload.slug,
-            payload.status,
-            payload.openedAt,
-            payload.nftCreator ?: "unknown"
+        val createdArticle: Article? = articleService.addArticle(payload)
+        createdArticle?.let { return ResponseEntity.ok(
+            NileResponse(
+                message = "article이 성공적으로 생성되었습니다.",
+                result = createdArticle
+            )
+        ) } ?: return ResponseEntity.ok(
+            NileResponse(
+                errorCode = NileCommonError.INVALID_SLUG.getErrorCode(),
+                status = NileCommonError.INVALID_SLUG.getHttpStatus(),
+                message = "이미 존재하는 slug입니다."
+            )
         )
-        articleService.addArticle(targetArticle)
-
-        payload.contents.forEach {
-            articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
-        }
-
-        return ResponseEntity.ok().build<Any>() // response에서 데이터 확인 가능하도록
     }
 
     // read

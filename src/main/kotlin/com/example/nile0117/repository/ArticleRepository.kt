@@ -9,6 +9,8 @@ import java.util.UUID
 
 @Repository
 interface ArticleRepository: JpaRepository<Article, UUID> {
+    fun existsBySlug(slug: String): Boolean
+
     fun findAllByIdIsNotNull(): List<Article>
     fun findAllByIdIsNotNull(pageable: Pageable): Page<Article>
     fun findAllByIdIsNotNullOrderByOpenedAtDesc(): List<Article>
