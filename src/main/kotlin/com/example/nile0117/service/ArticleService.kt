@@ -32,9 +32,9 @@ class ArticleService {
 
     // delete
     fun removeArticleBySlug(slug: String) {
-        val nileArticle = slug?.let { articleRepository.findBySlug(slug) }
+        val nileArticle = articleRepository.findBySlug(slug)
+        nileArticle?.let { articleRepository.delete(it) }
             ?: throw NileException(NileCommonError.NOT_FOUND)
-        articleRepository.delete(nileArticle)
     }
 
 }

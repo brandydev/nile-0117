@@ -33,4 +33,9 @@ abstract class BaseEntity {
         pattern = "yyyy-MM-dd hh:mm:ss"
     )
     var updatedAt: LocalDateTime? = null
+
+    // createdBy, updatedBy >> spring security 기반 >> article에는 필요함.
+    // 글 작성자와 글 등록자는 구분되어야 함.
+    // article 기준으로 어떤 사람이 작성했는지 남기기 >> article entity에 columnist id 담기
+    // 사용자 인증 체계가 필요함. token key를 활용해 audit 해야 함.
 }

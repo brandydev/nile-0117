@@ -37,7 +37,7 @@ class HashtagController {
             throw NileException(NileCommonError.INVALID_TEXT)
         }
 
-        if (payload.text.isNullOrBlank()) {
+        if (payload.text.isBlank()) {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
@@ -79,8 +79,7 @@ class HashtagController {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
-        val hashtag = text?.let { hashtagService.getHashtagByText(text) }
-            ?: throw NileException(NileCommonError.NOT_FOUND)
+        val hashtag = hashtagService.getHashtagByText(text)
 
         return ResponseEntity.ok(
             NileResponse(
@@ -101,10 +100,6 @@ class HashtagController {
         val nileHashtag: Hashtag = hashtagService.getHashtagByText(text)
         hashtagService.removeHashtagByText(nileHashtag.text)
 
-        return ResponseEntity.ok(
-            NileResponse(
-                result = nileHashtag
-            )
-        )
+        return ResponseEntity.ok().build<Any>()
     }
 }

@@ -26,8 +26,8 @@ class HashtagService {
 
     // delete
     fun removeHashtagByText(text: String) {
-        val nileHashtag = text?.let { hashtagRepository.findByText(text) }
+        val nileHashtag = hashtagRepository.findByText(text)
+        nileHashtag?.let { hashtagRepository.delete(it) }
             ?: throw NileException(NileCommonError.NOT_FOUND)
-        hashtagRepository.delete(nileHashtag)
     }
 }

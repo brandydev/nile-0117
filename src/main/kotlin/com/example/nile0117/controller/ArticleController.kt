@@ -9,8 +9,6 @@ import com.example.nile0117.util.exception.NileCommonError
 import com.example.nile0117.util.exception.NileException
 import com.example.nile0117.util.response.NileResponse
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -39,7 +37,8 @@ class ArticleController {
         @RequestBody payload: Article
     ): ResponseEntity<*> {
         // slug 입력 여부 확인
-        if (payload.slug.isNullOrBlank()) {
+        // 유효성 체크
+        if (payload.slug.isBlank()) {
             throw NileException(NileCommonError.INVALID_PARAMETER)
         }
 
@@ -49,19 +48,13 @@ class ArticleController {
             payload.openedAt,
             payload.creator ?: "unknown"
         )
-        targetArticle.createdAt = LocalDateTime.now()
         articleService.addArticle(targetArticle)
 
         payload.contents.forEach {
             articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
         }
 
-        // return ResponseEntity.ok().build<Any>()
-        return ResponseEntity.ok(
-            NileResponse(
-                result = targetArticle
-            )
-        )
+        return ResponseEntity.ok().build<Any>() // response에서 데이터 확인 가능하도록
     }
 
     // read
@@ -116,8 +109,7 @@ class ArticleController {
 
         targetArticle.slug = request.slug
         targetArticle.status = request.status
-        targetArticle.updatedAt = LocalDateTime.now()
-        targetArticle.openedAt = request.openedAt
+        targetArticle.openedAt = request.openedAt // openedAt 지정하지 않으면, 현재 시점으로 기본 설정
         targetArticle.creator = request.creator
 
         articleService.addArticle(targetArticle)
@@ -125,21 +117,19 @@ class ArticleController {
         // content update
         val prevContents = articleContentRepository.findAllByArticleId(targetArticle.id)
         prevContents.forEach {
-            articleContentRepository.delete(it)
+            articleContentRepository.delete(it) // 삭제 후 재등록 말고 수정으로!
+            // postgres는 update 시 기존 거를 지우고 다시 만듦
+            // update 관련 글 찾아보기
         }
         targetArticle.contents.forEach {
             articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
         }
 
-        // return ResponseEntity.ok().build<Any>()
-        return ResponseEntity.ok(
-            NileResponse(
-                result = targetArticle
-            )
-        )
+        return ResponseEntity.ok().build<Any>()
     }
 
     // delete
+    // 조회를 제외하고는 권한 처리
     @DeleteMapping("/article")
     fun removeArticle(
         @RequestParam("slug", required = false, defaultValue = "") slug: String?
@@ -156,11 +146,6 @@ class ArticleController {
             articleContentRepository.delete(it)
         }
 
-        // return ResponseEntity.ok().build<Any>()
-        return ResponseEntity.ok(
-            NileResponse(
-                result = targetArticle
-            )
-        )
+        return ResponseEntity.ok().build<Any>()
     }
 }
