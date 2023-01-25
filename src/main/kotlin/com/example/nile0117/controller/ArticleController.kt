@@ -1,13 +1,10 @@
 package com.example.nile0117.controller
 
 import com.example.nile0117.domain.entity.Article
-import com.example.nile0117.domain.entity.ArticleContent
-import com.example.nile0117.domain.enums.Status
 import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
 import com.example.nile0117.service.ArticleService
 import com.example.nile0117.util.exception.NileCommonError
-import com.example.nile0117.util.exception.NileException
 import com.example.nile0117.util.response.NileResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime
 
 @RestController
 class ArticleController {
@@ -104,40 +100,36 @@ class ArticleController {
         )
     }
 
-    /*
     // update
     @PutMapping("/article")
     fun updateArticle(
         @RequestParam("slug", required = false, defaultValue = "") slug: String?,
-        @RequestBody request: Article
+        @RequestBody payload: Article
     ): ResponseEntity<*> {
         if (slug.isNullOrBlank()) {
-            throw NileException(NileCommonError.INVALID_PARAMETER)
+            return ResponseEntity.ok(
+                NileResponse(
+                    errorCode = NileCommonError.INVALID_PARAMETER.getErrorCode(),
+                    status = NileCommonError.INVALID_PARAMETER.getHttpStatus(),
+                    message = "article 수정을 위해서는 slug 입력이 필요합니다."
+                )
+            )
         }
 
-        val targetArticle = articleService.getArticleBySlug(slug)
-
-        targetArticle.slug = request.slug
-        targetArticle.status = request.status
-        targetArticle.openedAt = request.openedAt // openedAt 지정하지 않으면, 현재 시점으로 기본 설정
-        targetArticle.nftCreator = request.nftCreator
-
-        articleService.addArticle(targetArticle)
-
-        // content update
-        val prevContents = articleContentRepository.findAllByArticleId(targetArticle.id)
-        prevContents.forEach {
-            articleContentRepository.delete(it) // 삭제 후 재등록 말고 수정으로!
-            // postgres는 update 시 기존 거를 지우고 다시 만듦
-            // update 관련 글 찾아보기
-        }
-        targetArticle.contents.forEach {
-            articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
-        }
-
-        return ResponseEntity.ok().build<Any>()
+        val updatedArticle = articleService.updateArticleBySlug(slug, payload)
+        updatedArticle?.let { return ResponseEntity.ok(
+            NileResponse(
+                message = "article이 성공적으로 수정되었습니다.",
+                result = updatedArticle
+            )
+        ) } ?: return ResponseEntity.ok(
+            NileResponse(
+                errorCode = NileCommonError.NOT_FOUND.getErrorCode(),
+                status = NileCommonError.NOT_FOUND.getHttpStatus(),
+                message = "존재하지 않는 article입니다."
+            )
+        )
     }
-     */
 
     // delete
     @DeleteMapping("/article")
@@ -164,7 +156,7 @@ class ArticleController {
             NileResponse(
                 errorCode = NileCommonError.INVALID_SLUG.getErrorCode(),
                 status = NileCommonError.INVALID_SLUG.getHttpStatus(),
-                message = "존재하지 않는 slug입니다."
+                message = "존재하지 않는 article입니다."
             )
         )
     }

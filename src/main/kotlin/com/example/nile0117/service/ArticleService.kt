@@ -5,8 +5,6 @@ import com.example.nile0117.domain.entity.ArticleContent
 import com.example.nile0117.domain.enums.Status
 import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
-import com.example.nile0117.util.exception.NileCommonError
-import com.example.nile0117.util.exception.NileException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -66,6 +64,16 @@ class ArticleService {
     }
 
     // update
+    fun updateArticleBySlug(slug: String, request: Article): Article? {
+        val isExist = articleRepository.existsBySlug(slug)
+        return if (!isExist) {
+            null
+        } else {
+            // todo: 로직 검토 및 수정
+            removeArticleBySlug(slug)
+            addArticle(request)
+        }
+    }
 
     // delete
     fun removeArticleBySlug(slug: String): Article? {
