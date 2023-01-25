@@ -7,6 +7,7 @@ import com.example.nile0117.repository.ArticleContentRepository
 import com.example.nile0117.repository.ArticleRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class ArticleService {
@@ -28,13 +29,13 @@ class ArticleService {
             val targetArticle = Article(
                 request.slug,
                 request.status ?: Status.HIDDEN,
-                request.openedAt,
+                request.openedAt ?: LocalDateTime.now(),
                 request.nftCreator ?: "unknown"
             )
             articleRepository.save(targetArticle)
 
             request.contents.forEach {
-                articleContentRepository.save(ArticleContent(it.language, it.title, it.description, it.content, targetArticle.id))
+                articleContentRepository.save(ArticleContent(targetArticle.id, it.language, it.title, it.content))
             }
 
             return targetArticle

@@ -8,14 +8,16 @@ import java.time.LocalDateTime
 import kotlin.jvm.Transient
 
 @Entity
-data class Article( // paging 처리
+data class Article(
     var slug: String, // unique index 처리 >> db 차원에서 처리 가능
     @Enumerated(EnumType.STRING)
     var status: Status?,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     var openedAt: LocalDateTime?,
-    var nftCreator: String? // article의 main nft 제작자
+    var nftCreator: String?
 ): BaseEntity() {
     @Transient
     var contents = mutableListOf<ArticleContent>()
+    @Transient
+    var hashtags = mutableListOf<Hashtag>()
 }
